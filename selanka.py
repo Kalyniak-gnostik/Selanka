@@ -41,6 +41,123 @@ def resource_path(relative_path):
         base_path = os.path.abspath(".")
     return os.path.join(base_path, relative_path)
 
+UI_TEXT = {
+    "uk": {
+        "app": "Редактор Силянок", "new": "Новий проєкт", "open": "Відкрити", "recent": "Останній проєкт",
+        "save": "Зберегти", "undo": "Скасувати", "redo": "Повторити", "pdf": "Експорт PDF",
+        "clear": "Очистити полотно", "zoom": "Масштаб", "dark": "Темна тема", "light": "Світла тема",
+        "fullscreen": "На весь екран", "language": "Мова інтерфейсу", "drawing": "Малювання",
+        "pencil": "Пензель", "eraser": "Гумка", "fill": "Заливка", "eyedropper": "Піпетка",
+        "line": "Лінія", "shape": "Фігура", "text": "Текст у сітку", "select": "Виділення", "shift_row": "Зсув одного рядка",
+        "thickness": "Товщина", "symmetry": "Симетрія", "horizontal": "Горизонтальна", "vertical": "Вертикальна",
+        "selected_fragment": "Виділений фрагмент", "mirror_h": "Дзеркало ліво/право", "mirror_v": "Дзеркало верх/низ",
+        "rotate": "Повернути 90°", "bulk_shift": "Масовий зсув рядків", "generator": "Генератор орнаменту",
+        "product": "Виріб", "colors": "Кольори", "layers": "Шари", "export": "Експорт",
+        "pick_color": "Вибрати свій колір", "quick_palette": "Швидка палітра", "canvas_bg": "Колір фону полотна",
+        "sketch": "Ескіз", "load_image": "Завантажити зображення", "fit_image": "Вписати зображення у сітку",
+        "convert_image": "Перетворити зображення у схему", "lock": "Зафіксувати", "opacity": "Прозорість",
+        "remove_sketch": "Видалити ескіз", "no_sketch": "Ескіз не завантажено", "help": "Пробіл + перетягування — рух · колесо — масштаб · Ctrl+C / Ctrl+V — фрагмент · 1…9 — колір",
+        "add_layer": "Додати шар", "duplicate_layer": "Дублювати шар", "rename_layer": "Перейменувати шар",
+        "delete_layer": "Видалити шар", "visibility": "Видимість шару", "locking": "Блокування шару",
+        "resize": "Застосувати розмір", "hide_grid": "Приховати лінії сітки", "ready": "Готово",
+        "title": "Назва", "author": "Автор", "type": "Тип", "grid": "Сітка", "form": "Форма", "rows": "Рядків", "columns": "Стовпців",
+        "visible": "Видимий", "hidden": "Прихований", "locked": "заблокований", "filled_shape": "Суцільна заливка",
+        "export_info": "Експорт містить назву, автора, дату, нумерацію сторінок і легенду кольорів.", "pdf_print": "PDF для друку",
+        "image_export": "PNG / JPG", "svg_export": "SVG", "text_export": "Текстова схема", "print_preview": "Попередній перегляд друку",
+        "bead_calc": "Калькулятор бісеру", "empty": "Поки пусто",
+    },
+    "en": {
+        "app": "Selanka Editor", "new": "New project", "open": "Open", "recent": "Open recent project",
+        "save": "Save", "undo": "Undo", "redo": "Redo", "pdf": "Export PDF",
+        "clear": "Clear canvas", "zoom": "Zoom", "dark": "Dark theme", "light": "Light theme",
+        "fullscreen": "Full screen", "language": "Interface language", "drawing": "Drawing",
+        "pencil": "Brush", "eraser": "Eraser", "fill": "Flood fill", "eyedropper": "Eyedropper",
+        "line": "Line", "shape": "Shape", "text": "Text on grid", "select": "Selection", "shift_row": "Shift one row",
+        "thickness": "Brush size", "symmetry": "Symmetry", "horizontal": "Horizontal", "vertical": "Vertical",
+        "selected_fragment": "Selected fragment", "mirror_h": "Mirror left/right", "mirror_v": "Mirror top/bottom",
+        "rotate": "Rotate 90°", "bulk_shift": "Bulk row shift", "generator": "Pattern generator",
+        "product": "Product", "colors": "Colors", "layers": "Layers", "export": "Export",
+        "pick_color": "Choose custom color", "quick_palette": "Quick palette", "canvas_bg": "Canvas background",
+        "sketch": "Reference image", "load_image": "Load image", "fit_image": "Fit image to grid",
+        "convert_image": "Convert image to pattern", "lock": "Lock image", "opacity": "Opacity",
+        "remove_sketch": "Remove image", "no_sketch": "No image loaded", "help": "Space + drag — pan · wheel — zoom · Ctrl+C / Ctrl+V — fragment · 1…9 — color",
+        "add_layer": "Add layer", "duplicate_layer": "Duplicate layer", "rename_layer": "Rename layer",
+        "delete_layer": "Delete layer", "visibility": "Layer visibility", "locking": "Lock layer",
+        "resize": "Apply size", "hide_grid": "Hide grid lines", "ready": "Ready",
+        "title": "Title", "author": "Author", "type": "Type", "grid": "Grid", "form": "Shape", "rows": "Rows", "columns": "Columns",
+        "visible": "Visible", "hidden": "Hidden", "locked": "locked", "filled_shape": "Filled shape",
+        "export_info": "The export includes title, author, date, page numbers, and a color legend.", "pdf_print": "Print-ready PDF",
+        "image_export": "PNG / JPG", "svg_export": "SVG", "text_export": "Row-by-row text pattern", "print_preview": "Print preview",
+        "bead_calc": "Bead calculator", "empty": "No beads yet",
+    },
+}
+
+def make_icon(name, color="#818cf8"):
+    """Create consistent vector-like toolbar icons without external asset files."""
+    pixmap = QPixmap(36, 36); pixmap.fill(Qt.GlobalColor.transparent)
+    painter = QPainter(pixmap); painter.setRenderHint(QPainter.RenderHint.Antialiasing, True)
+    pen = QPen(QColor(color), 2.6, Qt.PenStyle.SolidLine, Qt.PenCapStyle.RoundCap, Qt.PenJoinStyle.RoundJoin)
+    painter.setPen(pen); painter.setBrush(Qt.BrushStyle.NoBrush)
+    if name in ("pencil", "line"):
+        painter.drawLine(9, 27, 27, 9)
+        if name == "pencil": painter.drawLine(8, 28, 13, 27); painter.drawLine(26, 8, 29, 11)
+    elif name == "eraser":
+        path = QPainterPath(); path.moveTo(8, 23); path.lineTo(20, 9); path.lineTo(29, 17); path.lineTo(18, 28); path.lineTo(8, 23); painter.drawPath(path)
+    elif name == "fill":
+        painter.drawRect(9, 10, 15, 15); painter.drawLine(9, 10, 24, 25); painter.setBrush(QColor(color)); painter.drawEllipse(QRectF(26, 23, 5, 7))
+    elif name == "eyedropper":
+        painter.drawEllipse(QRectF(22, 7, 7, 7)); painter.drawLine(25, 13, 11, 27); painter.drawLine(9, 25, 13, 29)
+    elif name == "shape":
+        painter.drawRoundedRect(QRectF(7, 8, 15, 15), 2, 2); painter.drawEllipse(QRectF(17, 17, 12, 12))
+    elif name == "text":
+        font = painter.font(); font.setPixelSize(25); font.setBold(True); painter.setFont(font); painter.drawText(QRectF(4, 3, 28, 30), Qt.AlignmentFlag.AlignCenter, "T")
+    elif name == "select":
+        painter.setPen(QPen(QColor(color), 2.2, Qt.PenStyle.DashLine)); painter.drawRect(7, 7, 22, 22)
+    elif name in ("shift_row", "bulk"):
+        for y, offset in ((10, 0), (18, 5 if name == "bulk" else 0), (26, 0)): painter.drawLine(7 + offset, y, 28 + offset, y)
+        painter.drawLine(24, 14, 29, 18); painter.drawLine(29, 18, 24, 22)
+    elif name in ("mirror_h", "mirror_v"):
+        painter.setPen(QPen(QColor(color), 1.8, Qt.PenStyle.DashLine))
+        if name == "mirror_h": painter.drawLine(18, 5, 18, 31); painter.setPen(pen); painter.drawRect(6, 11, 8, 14); painter.drawRect(22, 11, 8, 14)
+        else: painter.drawLine(5, 18, 31, 18); painter.setPen(pen); painter.drawRect(11, 6, 14, 8); painter.drawRect(11, 22, 14, 8)
+    elif name in ("undo", "redo"):
+        path = QPainterPath(); path.moveTo(9 if name == "undo" else 27, 13); path.cubicTo(16, 5, 29, 10, 28 if name == "undo" else 8, 25); painter.drawPath(path)
+        if name == "undo": painter.drawLine(9, 13, 15, 9); painter.drawLine(9, 13, 15, 17)
+        else: painter.drawLine(27, 13, 21, 9); painter.drawLine(27, 13, 21, 17)
+    elif name == "clear":
+        painter.drawRoundedRect(QRectF(10, 11, 16, 20), 2, 2); painter.drawLine(8, 10, 28, 10); painter.drawLine(14, 6, 22, 6); painter.drawLine(15, 16, 15, 26); painter.drawLine(21, 16, 21, 26)
+    elif name == "open":
+        path = QPainterPath(); path.moveTo(6, 13); path.lineTo(15, 13); path.lineTo(18, 9); path.lineTo(30, 9); path.lineTo(27, 28); path.lineTo(6, 28); path.closeSubpath(); painter.drawPath(path)
+    elif name == "save":
+        painter.drawRoundedRect(QRectF(7, 6, 22, 24), 2, 2); painter.drawRect(11, 7, 13, 8); painter.drawRect(11, 20, 14, 9)
+    elif name == "new":
+        painter.drawRoundedRect(QRectF(7, 7, 22, 22), 3, 3); painter.drawLine(18, 12, 18, 24); painter.drawLine(12, 18, 24, 18)
+    elif name == "recent":
+        painter.drawEllipse(QRectF(7, 7, 22, 22)); painter.drawLine(18, 11, 18, 19); painter.drawLine(18, 19, 24, 22)
+    elif name == "pdf":
+        font = painter.font(); font.setPixelSize(10); font.setBold(True); painter.setFont(font); painter.drawRoundedRect(QRectF(6, 5, 24, 27), 2, 2); painter.drawText(QRectF(7, 10, 22, 16), Qt.AlignmentFlag.AlignCenter, "PDF")
+    elif name == "rotate":
+        painter.drawArc(QRectF(7, 7, 22, 22), 25 * 16, 285 * 16); painter.drawLine(27, 7, 29, 14); painter.drawLine(27, 7, 20, 9)
+    elif name == "theme":
+        painter.setBrush(QColor(color)); painter.drawEllipse(QRectF(7, 7, 22, 22)); painter.setBrush(QColor("#111827")); painter.drawEllipse(QRectF(15, 4, 18, 25))
+    elif name == "fullscreen":
+        painter.drawLine(7, 14, 7, 7); painter.drawLine(7, 7, 14, 7); painter.drawLine(22, 7, 29, 7); painter.drawLine(29, 7, 29, 14)
+        painter.drawLine(7, 22, 7, 29); painter.drawLine(7, 29, 14, 29); painter.drawLine(22, 29, 29, 29); painter.drawLine(29, 29, 29, 22)
+    elif name == "generator":
+        painter.setPen(QPen(QColor(color), 1.8))
+        for pos in (8, 14, 20, 26): painter.drawLine(pos, 7, pos, 29); painter.drawLine(7, pos, 29, pos)
+        painter.setBrush(QColor(color)); painter.drawEllipse(QRectF(12, 12, 5, 5)); painter.drawEllipse(QRectF(24, 24, 5, 5))
+    elif name == "duplicate":
+        painter.drawRoundedRect(QRectF(7, 7, 17, 17), 2, 2); painter.drawRoundedRect(QRectF(13, 13, 17, 17), 2, 2)
+    elif name == "visibility":
+        path = QPainterPath(); path.moveTo(5, 18); path.cubicTo(11, 8, 25, 8, 31, 18); path.cubicTo(25, 28, 11, 28, 5, 18); painter.drawPath(path)
+        painter.setBrush(QColor(color)); painter.drawEllipse(QRectF(14, 14, 8, 8))
+    elif name == "lock":
+        painter.drawRoundedRect(QRectF(9, 15, 18, 15), 2, 2); painter.drawArc(QRectF(12, 6, 12, 16), 0, 180 * 16)
+    else:
+        painter.drawRoundedRect(QRectF(7, 7, 22, 22), 3, 3); painter.drawEllipse(QRectF(15, 15, 6, 6))
+    painter.end(); return QIcon(pixmap)
+
 # ==============================================================================
 # --- ВІДЖЕТИ ДОПОМІЖНІ ---
 # ==============================================================================
@@ -54,25 +171,26 @@ class ColorPaletteButton(QPushButton):
 class PrintSettingsDialog(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.setWindowTitle("Налаштування друку / PDF")
+        en = getattr(parent, "language", "uk") == "en"
+        self.setWindowTitle("Print / PDF settings" if en else "Налаштування друку / PDF")
         self.setMinimumWidth(350)
         layout = QVBoxLayout(self)
 
-        group_scale = QGroupBox("Масштаб малюнка")
+        group_scale = QGroupBox("Pattern scale" if en else "Масштаб малюнка")
         scale_layout = QVBoxLayout()
-        self.radio_fit = QRadioButton("Вмістити на 1 сторінку (Авто-масштаб)")
+        self.radio_fit = QRadioButton("Fit on one page (automatic scale)" if en else "Вмістити на 1 сторінку (Авто-масштаб)")
         self.radio_fit.setChecked(True)
-        self.radio_custom = QRadioButton("Свій розмір (Може розділити на сторінки)")
+        self.radio_custom = QRadioButton("Custom size (may span multiple pages)" if en else "Свій розмір (Може розділити на сторінки)")
         
         scale_layout.addWidget(self.radio_fit)
         scale_layout.addWidget(self.radio_custom)
         
         custom_size_layout = QHBoxLayout()
-        custom_size_layout.addWidget(QLabel("   Розмір клітинки:"))
+        custom_size_layout.addWidget(QLabel("   Cell size:" if en else "   Розмір клітинки:"))
         self.spin_scale = QSpinBox()
         self.spin_scale.setRange(2, 50)
         self.spin_scale.setValue(5)
-        self.spin_scale.setSuffix(" мм")
+        self.spin_scale.setSuffix(" mm" if en else " мм")
         self.spin_scale.setEnabled(False)
         custom_size_layout.addWidget(self.spin_scale)
         custom_size_layout.addStretch()
@@ -80,7 +198,7 @@ class PrintSettingsDialog(QDialog):
         group_scale.setLayout(scale_layout)
         self.radio_custom.toggled.connect(self.spin_scale.setEnabled)
         
-        self.chk_calc = QCheckBox("Додати калькулятор бісеру під малюнком")
+        self.chk_calc = QCheckBox("Add bead calculator below the pattern" if en else "Додати калькулятор бісеру під малюнком")
         self.chk_calc.setChecked(True)
 
         buttons = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)
@@ -127,27 +245,31 @@ class NewProjectDialog(QDialog):
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.setWindowTitle("Новий проєкт")
+        self.language = getattr(parent, "language", "uk"); en = self.language == "en"
+        self.setWindowTitle("New project" if en else "Новий проєкт")
         self.setMinimumWidth(430)
         layout = QVBoxLayout(self)
         form = QFormLayout()
-        self.title_edit = QLineEdit("Нова силянка")
+        self.title_edit = QLineEdit("New beadwork" if en else "Нова силянка")
         self.product_combo = QComboBox()
         self.grid_combo = QComboBox()
         self.shape_combo = QComboBox()
-        for label, value in self.PRODUCT_TYPES: self.product_combo.addItem(label, value)
-        for label, value in self.GRID_TYPES: self.grid_combo.addItem(label, value)
-        for label, value in self.SHAPES: self.shape_combo.addItem(label, value)
+        product_en = {"loom": "Silianka / gerdan", "bracelet": "Loom bracelet", "peyote": "Peyote stitch", "brick": "Brick stitch", "rope": "Beaded rope", "earrings": "Earrings", "pendant": "Pendant", "fringe": "Fringe"}
+        grid_en = {"regular": "Regular", "peyote_even": "Even-count peyote", "peyote_odd": "Odd-count peyote", "brick": "Brick stitch", "custom": "Custom / bulk shift"}
+        shape_en = {"rectangle": "Rectangle", "triangle": "Triangle", "diamond": "Diamond", "circle": "Circle / ellipse", "earrings_pair": "Earring pair", "pendant": "Pendant"}
+        for label, value in self.PRODUCT_TYPES: self.product_combo.addItem(product_en.get(value, label) if en else label, value)
+        for label, value in self.GRID_TYPES: self.grid_combo.addItem(grid_en.get(value, label) if en else label, value)
+        for label, value in self.SHAPES: self.shape_combo.addItem(shape_en.get(value, label) if en else label, value)
         self.rows_spin = QSpinBox(); self.rows_spin.setRange(3, 500); self.rows_spin.setValue(50)
         self.cols_spin = QSpinBox(); self.cols_spin.setRange(3, 500); self.cols_spin.setValue(70)
-        form.addRow("Назва:", self.title_edit)
-        form.addRow("Тип виробу:", self.product_combo)
-        form.addRow("Тип сітки:", self.grid_combo)
-        form.addRow("Форма:", self.shape_combo)
-        form.addRow("Рядків:", self.rows_spin)
-        form.addRow("Стовпців:", self.cols_spin)
+        form.addRow("Title:" if en else "Назва:", self.title_edit)
+        form.addRow("Product type:" if en else "Тип виробу:", self.product_combo)
+        form.addRow("Grid type:" if en else "Тип сітки:", self.grid_combo)
+        form.addRow("Shape:" if en else "Форма:", self.shape_combo)
+        form.addRow("Rows:" if en else "Рядків:", self.rows_spin)
+        form.addRow("Columns:" if en else "Стовпців:", self.cols_spin)
         layout.addLayout(form)
-        hint = QLabel("Тип сітки можна змінити пізніше у вкладці «Виріб».")
+        hint = QLabel("The grid type can be changed later in the Product tab." if en else "Тип сітки можна змінити пізніше у вкладці «Виріб».")
         hint.setWordWrap(True); hint.setObjectName("mutedLabel")
         layout.addWidget(hint)
         buttons = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)
@@ -166,7 +288,7 @@ class NewProjectDialog(QDialog):
 
     def values(self):
         return {
-            "title": self.title_edit.text().strip() or "Без назви",
+            "title": self.title_edit.text().strip() or ("Untitled" if self.language == "en" else "Без назви"),
             "product_type": self.product_combo.currentData(),
             "grid_mode": self.grid_combo.currentData(),
             "shape": self.shape_combo.currentData(),
@@ -176,13 +298,14 @@ class NewProjectDialog(QDialog):
 
 class MaterialDialog(QDialog):
     def __init__(self, color, data=None, parent=None):
-        super().__init__(parent); data = data or {}; self.setWindowTitle(f"Матеріал {color}"); self.setMinimumWidth(380)
+        super().__init__(parent); data = data or {}; en = getattr(parent, "language", "uk") == "en"
+        self.setWindowTitle(f"Material {color}" if en else f"Матеріал {color}"); self.setMinimumWidth(380)
         layout = QVBoxLayout(self); form = QFormLayout()
         self.code = QLineEdit(data.get("code", color)); self.name = QLineEdit(data.get("name", ""))
-        self.price = QDoubleSpinBox(); self.price.setRange(0, 1_000_000); self.price.setDecimals(2); self.price.setSuffix(" грн"); self.price.setValue(float(data.get("price", 0) or 0))
-        self.stock = QSpinBox(); self.stock.setRange(0, 10_000_000); self.stock.setSuffix(" шт."); self.stock.setValue(int(data.get("stock", 0) or 0))
+        self.price = QDoubleSpinBox(); self.price.setRange(0, 1_000_000); self.price.setDecimals(2); self.price.setSuffix(" UAH" if en else " грн"); self.price.setValue(float(data.get("price", 0) or 0))
+        self.stock = QSpinBox(); self.stock.setRange(0, 10_000_000); self.stock.setSuffix(" pcs" if en else " шт."); self.stock.setValue(int(data.get("stock", 0) or 0))
         self.note = QLineEdit(data.get("note", ""))
-        form.addRow("Код", self.code); form.addRow("Назва", self.name); form.addRow("Ціна", self.price); form.addRow("Є в запасі", self.stock); form.addRow("Нотатка", self.note); layout.addLayout(form)
+        form.addRow("Code" if en else "Код", self.code); form.addRow("Name" if en else "Назва", self.name); form.addRow("Price" if en else "Ціна", self.price); form.addRow("In stock" if en else "Є в запасі", self.stock); form.addRow("Note" if en else "Нотатка", self.note); layout.addLayout(form)
         buttons = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel); buttons.accepted.connect(self.accept); buttons.rejected.connect(self.reject); layout.addWidget(buttons)
 
     def values(self):
@@ -191,23 +314,24 @@ class MaterialDialog(QDialog):
 class TextPatternDialog(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.setWindowTitle("Текст у сітку")
+        self.language = getattr(parent, "language", "uk"); en = self.language == "en"
+        self.setWindowTitle("Text on grid" if en else "Текст у сітку")
         self.setMinimumWidth(390)
         layout = QVBoxLayout(self); form = QFormLayout()
-        self.text_edit = QLineEdit(); self.text_edit.setPlaceholderText("Наприклад: УКРАЇНА")
+        self.text_edit = QLineEdit(); self.text_edit.setPlaceholderText("For example: UKRAINE" if en else "Наприклад: УКРАЇНА")
         self.font_combo = QComboBox(); self.font_combo.addItems(["Arial", "Segoe UI", "Consolas", "Times New Roman"])
-        self.height_spin = QSpinBox(); self.height_spin.setRange(5, 50); self.height_spin.setValue(11); self.height_spin.setSuffix(" клітинок")
-        self.bold_check = QCheckBox("Жирний текст"); self.bold_check.setChecked(True)
-        form.addRow("Текст:", self.text_edit); form.addRow("Шрифт:", self.font_combo); form.addRow("Висота:", self.height_spin); form.addRow("", self.bold_check)
+        self.height_spin = QSpinBox(); self.height_spin.setRange(5, 50); self.height_spin.setValue(11); self.height_spin.setSuffix(" cells" if en else " клітинок")
+        self.bold_check = QCheckBox("Bold text" if en else "Жирний текст"); self.bold_check.setChecked(True)
+        form.addRow("Text:" if en else "Текст:", self.text_edit); form.addRow("Font:" if en else "Шрифт:", self.font_combo); form.addRow("Height:" if en else "Висота:", self.height_spin); form.addRow("", self.bold_check)
         layout.addLayout(form)
-        hint = QLabel("Літери будуть перетворені на кольорові клітинки, починаючи з вибраної точки.")
+        hint = QLabel("Letters will be converted to colored cells starting from the selected point." if en else "Літери будуть перетворені на кольорові клітинки, починаючи з вибраної точки.")
         hint.setWordWrap(True); hint.setObjectName("mutedLabel"); layout.addWidget(hint)
         buttons = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)
         buttons.accepted.connect(self.accept); buttons.rejected.connect(self.reject); layout.addWidget(buttons)
 
     def accept(self):
         if not self.text_edit.text():
-            QMessageBox.warning(self, "Текст", "Введіть текст."); return
+            QMessageBox.warning(self, "Text" if self.language == "en" else "Текст", "Enter text." if self.language == "en" else "Введіть текст."); return
         super().accept()
 
     def values(self):
@@ -216,13 +340,14 @@ class TextPatternDialog(QDialog):
 
 class BulkShiftDialog(QDialog):
     def __init__(self, max_rows, parent=None):
-        super().__init__(parent); self.setWindowTitle("Масовий зсув рядків"); self.setMinimumWidth(430)
+        super().__init__(parent); self.language = getattr(parent, "language", "uk"); en = self.language == "en"
+        self.setWindowTitle("Bulk row shift" if en else "Масовий зсув рядків"); self.setMinimumWidth(430)
         layout = QVBoxLayout(self); form = QFormLayout()
         self.first_row = QSpinBox(); self.first_row.setRange(1, max_rows); self.first_row.setValue(2)
         self.skip_rows = QSpinBox(); self.skip_rows.setRange(0, max(0, max_rows - 1)); self.skip_rows.setValue(1)
-        self.reset_existing = QCheckBox("Спочатку прибрати попередні зсуви"); self.reset_existing.setChecked(True)
-        form.addRow("Перший зсунутий рядок:", self.first_row)
-        form.addRow("Пропускати рядків між зсунутими:", self.skip_rows)
+        self.reset_existing = QCheckBox("Clear existing shifts first" if en else "Спочатку прибрати попередні зсуви"); self.reset_existing.setChecked(True)
+        form.addRow("First shifted row:" if en else "Перший зсунутий рядок:", self.first_row)
+        form.addRow("Rows to skip between shifts:" if en else "Пропускати рядків між зсунутими:", self.skip_rows)
         form.addRow("", self.reset_existing); layout.addLayout(form)
         self.example = QLabel(); self.example.setWordWrap(True); self.example.setObjectName("mutedLabel"); layout.addWidget(self.example)
         self.first_row.valueChanged.connect(self.update_example); self.skip_rows.valueChanged.connect(self.update_example); self.update_example()
@@ -232,8 +357,10 @@ class BulkShiftDialog(QDialog):
     def update_example(self):
         first, step = self.first_row.value(), self.skip_rows.value() + 1
         rows = [str(first + index * step) for index in range(5)]
-        self.example.setText("Будуть зсунуті рядки: " + ", ".join(rows) + "…  "
-                             + ("Через 1 = кожен другий рядок." if self.skip_rows.value() == 1 else ""))
+        if self.language == "en":
+            self.example.setText("Shifted rows: " + ", ".join(rows) + "…  " + ("Skip 1 = every second row." if self.skip_rows.value() == 1 else ""))
+        else:
+            self.example.setText("Будуть зсунуті рядки: " + ", ".join(rows) + "…  " + ("Через 1 = кожен другий рядок." if self.skip_rows.value() == 1 else ""))
 
     def values(self):
         return self.first_row.value() - 1, self.skip_rows.value(), self.reset_existing.isChecked()
@@ -242,30 +369,31 @@ class ImageConversionDialog(QDialog):
     """Налаштування квантування фото з живим попереднім переглядом."""
     def __init__(self, samples, rows, cols, quick_palette, parent=None):
         super().__init__(parent)
+        self.language = getattr(parent, "language", "uk"); en = self.language == "en"
         self.samples = samples; self.rows = rows; self.cols = cols
         self.quick_palette = list(dict.fromkeys(QColor(value).name() for value in quick_palette if QColor(value).isValid()))
         self.palette_cache = {}; self.result = {}; self.result_palette = []
-        self.setWindowTitle("Перетворення зображення у схему")
+        self.setWindowTitle("Convert image to pattern" if en else "Перетворення зображення у схему")
         self.resize(900, 680)
         root = QVBoxLayout(self)
-        settings = QGroupBox("Налаштування кольорів"); form = QFormLayout(settings)
+        settings = QGroupBox("Color settings" if en else "Налаштування кольорів"); form = QFormLayout(settings)
         self.mode_combo = QComboBox()
-        self.mode_combo.addItem("Автокольори з фото (наближені)", "auto")
-        self.mode_combo.addItem("Найближчі зі швидкої палітри", "palette")
+        self.mode_combo.addItem("Automatic approximate colors from image" if en else "Автокольори з фото (наближені)", "auto")
+        self.mode_combo.addItem("Nearest colors from quick palette" if en else "Найближчі зі швидкої палітри", "palette")
         count_row = QHBoxLayout()
-        less = QPushButton("− Менше"); more = QPushButton("Більше +")
+        less = QPushButton("− Fewer" if en else "− Менше"); more = QPushButton("More +" if en else "Більше +")
         self.count_spin = QSpinBox(); self.count_spin.setRange(2, 32); self.count_spin.setValue(min(10, max(2, len(self.quick_palette))))
         self.count_slider = QSlider(Qt.Orientation.Horizontal); self.count_slider.setRange(2, 32); self.count_slider.setValue(self.count_spin.value())
         less.clicked.connect(lambda: self.count_spin.setValue(self.count_spin.value() - 1))
         more.clicked.connect(lambda: self.count_spin.setValue(self.count_spin.value() + 1))
         self.count_spin.valueChanged.connect(self.count_slider.setValue); self.count_slider.valueChanged.connect(self.count_spin.setValue)
         count_row.addWidget(less); count_row.addWidget(self.count_spin); count_row.addWidget(more); count_row.addWidget(self.count_slider, 1)
-        form.addRow("Режим:", self.mode_combo); form.addRow("Кількість кольорів:", count_row); root.addWidget(settings)
+        form.addRow("Mode:" if en else "Режим:", self.mode_combo); form.addRow("Number of colors:" if en else "Кількість кольорів:", count_row); root.addWidget(settings)
         self.preview_label = QLabel(); self.preview_label.setAlignment(Qt.AlignmentFlag.AlignCenter); self.preview_label.setMinimumSize(700, 390)
         preview_scroll = QScrollArea(); preview_scroll.setWidgetResizable(True); preview_scroll.setWidget(self.preview_label); root.addWidget(preview_scroll, 1)
         self.info_label = QLabel(); self.info_label.setWordWrap(True); root.addWidget(self.info_label)
         buttons = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)
-        buttons.button(QDialogButtonBox.StandardButton.Ok).setText("Створити схему")
+        buttons.button(QDialogButtonBox.StandardButton.Ok).setText("Create pattern" if en else "Створити схему")
         buttons.accepted.connect(self.accept); buttons.rejected.connect(self.reject); root.addWidget(buttons)
         self.mode_combo.currentIndexChanged.connect(self.mode_changed); self.count_spin.valueChanged.connect(self.update_preview)
         self.mode_changed()
@@ -333,12 +461,16 @@ class ImageConversionDialog(QDialog):
         painter.end()
         pixmap = QPixmap.fromImage(image).scaled(760, 460, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.FastTransformation)
         self.preview_label.setPixmap(pixmap)
-        self.info_label.setText(f"Попередній результат: {len(self.result)} клітинок · {len(palette)} кольорів\nПалітра: " + "  ".join(value.upper() for value in palette))
+        if self.language == "en":
+            self.info_label.setText(f"Preview: {len(self.result)} cells · {len(palette)} colors\nPalette: " + "  ".join(value.upper() for value in palette))
+        else:
+            self.info_label.setText(f"Попередній результат: {len(self.result)} клітинок · {len(palette)} кольорів\nПалітра: " + "  ".join(value.upper() for value in palette))
 
 class GridGeneratorDialog(QDialog):
     def __init__(self, current_color, parent=None):
         super().__init__(parent)
-        self.setWindowTitle("Генератор сітки / Орнаменту")
+        en = getattr(parent, "language", "uk") == "en"
+        self.setWindowTitle("Grid / pattern generator" if en else "Генератор сітки / Орнаменту")
         layout = QVBoxLayout(self)
 
         grid_layout = QGridLayout()
@@ -351,20 +483,20 @@ class GridGeneratorDialog(QDialog):
         self.spin_angle = QSpinBox(); self.spin_angle.setRange(-360, 360); self.spin_angle.setValue(0); self.spin_angle.setSuffix(" °")
         self.spin_thick = QDoubleSpinBox(); self.spin_thick.setRange(0.05, 1.0); self.spin_thick.setValue(0.15); self.spin_thick.setSingleStep(0.05)
         
-        grid_layout.addWidget(QLabel("Крок по X (клітинок):"), 0, 0); grid_layout.addWidget(self.spin_step_x, 0, 1)
-        grid_layout.addWidget(QLabel("Крок по Y (клітинок):"), 1, 0); grid_layout.addWidget(self.spin_step_y, 1, 1)
-        grid_layout.addWidget(QLabel("Зсув по X:"), 2, 0); grid_layout.addWidget(self.spin_off_x, 2, 1)
-        grid_layout.addWidget(QLabel("Зсув по Y:"), 3, 0); grid_layout.addWidget(self.spin_off_y, 3, 1)
-        grid_layout.addWidget(QLabel("Кут нахилу:"), 4, 0); grid_layout.addWidget(self.spin_angle, 4, 1)
-        grid_layout.addWidget(QLabel("Товщина ліній:"), 5, 0); grid_layout.addWidget(self.spin_thick, 5, 1)
+        grid_layout.addWidget(QLabel("X step (cells):" if en else "Крок по X (клітинок):"), 0, 0); grid_layout.addWidget(self.spin_step_x, 0, 1)
+        grid_layout.addWidget(QLabel("Y step (cells):" if en else "Крок по Y (клітинок):"), 1, 0); grid_layout.addWidget(self.spin_step_y, 1, 1)
+        grid_layout.addWidget(QLabel("X offset:" if en else "Зсув по X:"), 2, 0); grid_layout.addWidget(self.spin_off_x, 2, 1)
+        grid_layout.addWidget(QLabel("Y offset:" if en else "Зсув по Y:"), 3, 0); grid_layout.addWidget(self.spin_off_y, 3, 1)
+        grid_layout.addWidget(QLabel("Angle:" if en else "Кут нахилу:"), 4, 0); grid_layout.addWidget(self.spin_angle, 4, 1)
+        grid_layout.addWidget(QLabel("Line thickness:" if en else "Товщина ліній:"), 5, 0); grid_layout.addWidget(self.spin_thick, 5, 1)
 
-        self.chk_horiz = QCheckBox("Малювати горизонтальні (січні) лінії")
+        self.chk_horiz = QCheckBox("Draw horizontal lines" if en else "Малювати горизонтальні (січні) лінії")
         self.chk_horiz.setChecked(True)
-        self.chk_vert = QCheckBox("Малювати вертикальні (основні) лінії")
+        self.chk_vert = QCheckBox("Draw vertical lines" if en else "Малювати вертикальні (основні) лінії")
         self.chk_vert.setChecked(True)
 
         color_layout = QHBoxLayout()
-        color_layout.addWidget(QLabel("Колір ліній:"))
+        color_layout.addWidget(QLabel("Line color:" if en else "Колір ліній:"))
         self.btn_color = QPushButton()
         self.grid_color = QColor(current_color)
         self.btn_color.setStyleSheet(f"background-color: {self.grid_color.name()}; width: 40px; height: 25px;")
@@ -505,7 +637,10 @@ class TransformablePixmapItem(QGraphicsPixmapItem):
     def update_transform_ui(self):
         if self.main_window and self.isVisible():
             self.main_window.slider_op.setValue(int(self.opacity() * 100))
-            self.main_window.lbl_ref_info.setText(f"Кут: {int(self.rotation())}°, Масштаб: {int(self.scale() * 100)}%")
+            if getattr(self.main_window, "language", "uk") == "en":
+                self.main_window.lbl_ref_info.setText(f"Angle: {int(self.rotation())}°, Scale: {int(self.scale() * 100)}%")
+            else:
+                self.main_window.lbl_ref_info.setText(f"Кут: {int(self.rotation())}°, Масштаб: {int(self.scale() * 100)}%")
 
 class Cell(QGraphicsRectItem):
     def __init__(self, x, y, size, row, col, main_canvas):
@@ -545,6 +680,10 @@ class GridCanvas(QGraphicsView):
         self.setScene(self.scene)
         self.setRenderHint(QPainter.RenderHint.Antialiasing)
         self.setDragMode(QGraphicsView.DragMode.NoDrag)
+        self.setTransformationAnchor(QGraphicsView.ViewportAnchor.AnchorUnderMouse)
+        self.space_pressed = False
+        self.pan_active = False
+        self.pan_last_pos = None
         
         self.bg_color = "#FFFFFF"
         self.scene.setBackgroundBrush(QColor(self.bg_color))
@@ -783,20 +922,28 @@ class GridCanvas(QGraphicsView):
     def wheelEvent(self, event):
         z = 1.15 if event.angleDelta().y() > 0 else 1/1.15
         self.scale(z, z)
+        event.accept()
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key.Key_Space:
-            self.setDragMode(QGraphicsView.DragMode.ScrollHandDrag)
-            self.setInteractive(False)
+            if not event.isAutoRepeat():
+                self.space_pressed = True; self.viewport().setCursor(Qt.CursorShape.OpenHandCursor)
+            event.accept(); return
         elif event.matches(QKeySequence.StandardKey.Copy): self.copy_selection()
         elif event.matches(QKeySequence.StandardKey.Paste): self.paste_selection()
         super().keyPressEvent(event)
 
     def keyReleaseEvent(self, event):
         if event.key() == Qt.Key.Key_Space:
-            self.setDragMode(QGraphicsView.DragMode.NoDrag)
-            self.setInteractive(True)
+            if not event.isAutoRepeat():
+                self.space_pressed = False
+                if not self.pan_active: self.viewport().unsetCursor()
+            event.accept(); return
         super().keyReleaseEvent(event)
+
+    def focusOutEvent(self, event):
+        self.space_pressed = False; self.pan_active = False; self.pan_last_pos = None; self.viewport().unsetCursor()
+        super().focusOutEvent(event)
 
     def apply_tool(self, item):
         if not isinstance(item, Cell) or not self.is_drawing_allowed(): return 
@@ -862,7 +1009,10 @@ class GridCanvas(QGraphicsView):
         return cells
 
     def mousePressEvent(self, event):
-        self.setFocus() 
+        self.setFocus()
+        if event.button() == Qt.MouseButton.MiddleButton or (self.space_pressed and event.button() == Qt.MouseButton.LeftButton):
+            self.pan_active = True; self.pan_last_pos = event.position().toPoint(); self.viewport().setCursor(Qt.CursorShape.ClosedHandCursor)
+            event.accept(); return
         if self.ref_image_item and not self.ref_image_item.is_locked:
             clicked_item = self.itemAt(event.pos())
             if clicked_item != self.ref_image_item and not isinstance(clicked_item, (TransformHandle, SymLine)):
@@ -898,6 +1048,11 @@ class GridCanvas(QGraphicsView):
         super().mousePressEvent(event)
 
     def mouseMoveEvent(self, event):
+        if self.pan_active and self.pan_last_pos is not None:
+            current = event.position().toPoint(); delta = current - self.pan_last_pos; self.pan_last_pos = current
+            self.horizontalScrollBar().setValue(self.horizontalScrollBar().value() - delta.x())
+            self.verticalScrollBar().setValue(self.verticalScrollBar().value() - delta.y())
+            event.accept(); return
         if self.ref_image_item and not self.ref_image_item.is_locked: super().mouseMoveEvent(event); return
         if event.buttons() == Qt.MouseButton.LeftButton and self.isInteractive():
             pos = self.mapToScene(event.pos())
@@ -926,6 +1081,10 @@ class GridCanvas(QGraphicsView):
         super().mouseMoveEvent(event)
 
     def mouseReleaseEvent(self, event):
+        if self.pan_active and event.button() in (Qt.MouseButton.LeftButton, Qt.MouseButton.MiddleButton):
+            self.pan_active = False; self.pan_last_pos = None
+            self.viewport().setCursor(Qt.CursorShape.OpenHandCursor if self.space_pressed else Qt.CursorShape.ArrowCursor)
+            event.accept(); return
         super().mouseReleaseEvent(event) 
         if event.button() == Qt.MouseButton.LeftButton and self.isInteractive() and self.is_drawing_allowed():
             if self.current_tool == "shape" and self.preview_shape:
@@ -1118,9 +1277,11 @@ class MainWindow(QMainWindow):
         if os.path.exists(icon_path): self.setWindowIcon(QIcon(icon_path))
 
         self.settings = QSettings("SashaDev", "SelankaEditor")
+        self.language = self.settings.value("language", "uk")
+        if self.language not in UI_TEXT: self.language = "uk"
         self.current_print_settings = None
         self.current_file = None
-        self.project_title = "Нова силянка"
+        self.project_title = "Нова силянка" if self.language == "uk" else "New beadwork"
         self.project_author = self.settings.value("author", "")
         self.product_type = "loom"
         self.materials = {}
@@ -1137,8 +1298,8 @@ class MainWindow(QMainWindow):
         center = QVBoxLayout(); center.setSpacing(6)
         self.canvas.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
         center.addWidget(self.canvas)
-        help_label = QLabel("Пробіл + перетягування — рух · колесо — масштаб · Ctrl+C / Ctrl+V — фрагмент · 1…9 — колір")
-        help_label.setObjectName("mutedLabel"); center.addWidget(help_label)
+        self.help_label = QLabel(self.tx("help"))
+        self.help_label.setObjectName("mutedLabel"); center.addWidget(self.help_label)
         root.addLayout(center, 1)
         root.addWidget(self._build_right_tabs())
 
@@ -1146,84 +1307,96 @@ class MainWindow(QMainWindow):
         self.refresh_layers_ui()
         self.setup_shortcuts()
         self.apply_theme()
-        self.statusBar().showMessage("Готово")
+        self.apply_language()
+        self.statusBar().showMessage(self.tx("ready"))
 
         self.autosave_timer = QTimer(self)
         self.autosave_timer.timeout.connect(self.autosave_project)
         self.autosave_timer.start(120_000)
 
+    def tx(self, key):
+        return UI_TEXT.get(self.language, UI_TEXT["uk"]).get(key, UI_TEXT["uk"].get(key, key))
+
     def _build_toolbar(self):
-        toolbar = QToolBar("Головна панель", self)
-        toolbar.setMovable(False); toolbar.setIconSize(QSize(20, 20)); toolbar.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextOnly)
-        self.addToolBar(Qt.ToolBarArea.TopToolBarArea, toolbar)
+        self.main_toolbar = QToolBar("Main toolbar", self)
+        self.main_toolbar.setMovable(False); self.main_toolbar.setIconSize(QSize(28, 28)); self.main_toolbar.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonIconOnly)
+        self.addToolBar(Qt.ToolBarArea.TopToolBarArea, self.main_toolbar)
         actions = [
-            ("＋ Новий", self.new_project, "Ctrl+N"), ("Відкрити", self.load_project, "Ctrl+O"),
-            ("Останній", self.open_last_project, "Ctrl+Alt+O"),
-            ("Зберегти", self.save_project, "Ctrl+S"), ("Скасувати", self.canvas.do_undo, "Ctrl+Z"),
-            ("Повторити", self.canvas.do_redo, "Ctrl+Y"), ("PDF", self.export_pdf, "Ctrl+Shift+S"),
+            ("new", self.new_project, "Ctrl+N", "new"), ("open", self.load_project, "Ctrl+O", "open"),
+            ("recent", self.open_last_project, "Ctrl+Alt+O", "recent"),
+            ("save", self.save_project, "Ctrl+S", "save"), ("undo", self.canvas.do_undo, "Ctrl+Z", "undo"),
+            ("redo", self.canvas.do_redo, "Ctrl+Y", "redo"), ("pdf", self.export_pdf, "Ctrl+Shift+S", "pdf"),
         ]
-        for text, slot, shortcut in actions:
-            action = QAction(text, self); action.setShortcut(QKeySequence(shortcut)); action.triggered.connect(slot); toolbar.addAction(action)
-        clear_button = QPushButton("Очистити полотно"); clear_button.setObjectName("dangerButton"); clear_button.setToolTip("Видалити всі намальовані клітинки та завантажений ескіз")
-        clear_button.clicked.connect(self.confirm_clear_canvas); toolbar.addWidget(clear_button)
-        toolbar.addSeparator(); toolbar.addWidget(QLabel("Масштаб"))
+        self.toolbar_actions = {}
+        for key, slot, shortcut, icon_name in actions:
+            action = QAction(make_icon(icon_name), self.tx(key), self); action.setShortcut(QKeySequence(shortcut)); action.triggered.connect(slot)
+            action.setToolTip(f"{self.tx(key)} ({shortcut})"); self.main_toolbar.addAction(action); self.toolbar_actions[key] = action
+        self.clear_button = QPushButton(); self.clear_button.setProperty("iconOnly", True); self.clear_button.setFixedSize(42, 42); self.clear_button.setIconSize(QSize(28, 28)); self.clear_button.setIcon(make_icon("clear", "#ef4444"))
+        self.clear_button.clicked.connect(self.confirm_clear_canvas); self.main_toolbar.addWidget(self.clear_button)
+        self.main_toolbar.addSeparator(); self.zoom_label = QLabel(self.tx("zoom")); self.main_toolbar.addWidget(self.zoom_label)
         self.zoom_slider = QSlider(Qt.Orientation.Horizontal); self.zoom_slider.setRange(25, 300); self.zoom_slider.setValue(100); self.zoom_slider.setFixedWidth(130)
-        self.zoom_slider.valueChanged.connect(self.set_zoom); toolbar.addWidget(self.zoom_slider)
-        toolbar.addSeparator()
-        self.theme_action = QAction("Темна тема", self); self.theme_action.setCheckable(True); self.theme_action.setChecked(self.dark_theme); self.theme_action.triggered.connect(self.toggle_theme); toolbar.addAction(self.theme_action)
-        full_action = QAction("На весь екран", self); full_action.setShortcut(QKeySequence("F11")); full_action.triggered.connect(self.toggle_fullscreen); toolbar.addAction(full_action)
+        self.zoom_slider.valueChanged.connect(self.set_zoom); self.main_toolbar.addWidget(self.zoom_slider)
+        self.main_toolbar.addSeparator()
+        self.theme_action = QAction(make_icon("theme"), self.tx("dark"), self); self.theme_action.setCheckable(True); self.theme_action.setChecked(self.dark_theme); self.theme_action.triggered.connect(self.toggle_theme); self.main_toolbar.addAction(self.theme_action)
+        self.full_action = QAction(make_icon("fullscreen"), self.tx("fullscreen"), self); self.full_action.setShortcut(QKeySequence("F11")); self.full_action.triggered.connect(self.toggle_fullscreen); self.main_toolbar.addAction(self.full_action)
+        self.main_toolbar.addSeparator()
+        self.language_combo = QComboBox(); self.language_combo.setToolTip(self.tx("language")); self.language_combo.addItem("Українська", "uk"); self.language_combo.addItem("English", "en")
+        language_index = self.language_combo.findData(self.language)
+        if language_index >= 0: self.language_combo.setCurrentIndex(language_index)
+        self.language_combo.currentIndexChanged.connect(self.change_language); self.main_toolbar.addWidget(self.language_combo)
 
     def _build_tools_panel(self):
-        panel = QFrame(); panel.setObjectName("sidePanel"); panel.setFixedWidth(210)
+        panel = QFrame(); panel.setObjectName("sidePanel"); panel.setFixedWidth(196)
         layout = QVBoxLayout(panel); layout.setContentsMargins(12, 12, 12, 12)
-        title = QLabel("Малювання"); title.setObjectName("panelTitle"); layout.addWidget(title)
+        self.tools_title = QLabel(self.tx("drawing")); self.tools_title.setObjectName("panelTitle"); layout.addWidget(self.tools_title)
         grid = QGridLayout(); grid.setSpacing(6)
-        specs = [
-            ("pencil", "✎ Пензель"), ("eraser", "⌫ Гумка"), ("fill", "▨ Заливка"),
-            ("eyedropper", "◉ Піпетка"), ("line", "╱ Лінія"), ("shape", "□ Фігура"),
-            ("text", "Текст у сітку"), ("select", "⛶ Виділення"), ("shift_row", "↔ Зсув"),
-        ]
+        specs = ["pencil", "eraser", "fill", "eyedropper", "line", "shape", "text", "select", "shift_row"]
         self.tool_buttons = {}
-        for i, (tool_id, label) in enumerate(specs):
-            button = QPushButton(label); button.setCheckable(True); button.clicked.connect(lambda checked, t=tool_id: self.change_tool(t))
-            self.tool_buttons[tool_id] = button; grid.addWidget(button, i // 2, i % 2)
+        for i, tool_id in enumerate(specs):
+            button = QPushButton(); button.setProperty("iconOnly", True); button.setFixedSize(50, 48); button.setIconSize(QSize(30, 30)); button.setIcon(make_icon(tool_id))
+            button.setToolTip(self.tx(tool_id)); button.setCheckable(True); button.clicked.connect(lambda checked, t=tool_id: self.change_tool(t))
+            self.tool_buttons[tool_id] = button; grid.addWidget(button, i // 3, i % 3)
         layout.addLayout(grid)
         self.btn_pencil = self.tool_buttons["pencil"]; self.btn_line = self.tool_buttons["line"]
         self.btn_eraser = self.tool_buttons["eraser"]; self.btn_shape = self.tool_buttons["shape"]
         self.btn_select = self.tool_buttons["select"]; self.btn_shift = self.tool_buttons["shift_row"]
 
-        brush_row = QHBoxLayout(); brush_row.addWidget(QLabel("Товщина"))
+        brush_row = QHBoxLayout(); self.brush_label = QLabel(self.tx("thickness")); brush_row.addWidget(self.brush_label)
         self.spin_brush = QSpinBox(); self.spin_brush.setRange(1, 8); self.spin_brush.setValue(1); brush_row.addWidget(self.spin_brush)
         layout.addLayout(brush_row)
-        self.group_shapes = QGroupBox("Фігура"); shape_layout = QVBoxLayout(self.group_shapes)
+        self.group_shapes = QGroupBox(self.tx("shape")); shape_layout = QVBoxLayout(self.group_shapes)
         self.combo_shape = QComboBox()
         for label, value in (("Прямокутник", "rect"), ("Заокруглений прямокутник", "rounded"),
                              ("Коло / овал", "ellipse"), ("Трикутник", "triangle"), ("Ромб", "diamond"),
                              ("Шестикутник", "hexagon"), ("Зірка", "star"), ("Хрест", "cross")):
             self.combo_shape.addItem(label, value)
         self.chk_shape_filled = QCheckBox("Суцільна заливка"); shape_layout.addWidget(self.combo_shape); shape_layout.addWidget(self.chk_shape_filled); layout.addWidget(self.group_shapes)
-        sym = QGroupBox("Симетрія"); sym_layout = QVBoxLayout(sym)
-        self.chk_sym_h = QCheckBox("Горизонтальна"); self.chk_sym_h.stateChanged.connect(self.toggle_sym_h)
-        self.chk_sym_v = QCheckBox("Вертикальна"); self.chk_sym_v.stateChanged.connect(self.toggle_sym_v)
-        sym_layout.addWidget(self.chk_sym_h); sym_layout.addWidget(self.chk_sym_v); layout.addWidget(sym)
-        select_group = QGroupBox("Виділений фрагмент"); select_layout = QGridLayout(select_group)
-        for i, (label, mode) in enumerate((("Дзеркало ліво/право", "mirror_h"), ("Дзеркало верх/низ", "mirror_v"), ("Повернути 90°", "rotate"))):
-            btn = QPushButton(label); btn.clicked.connect(lambda checked, m=mode: self.canvas.transform_selection(m)); select_layout.addWidget(btn, i, 0)
-        layout.addWidget(select_group)
-        self.btn_bulk_shift = QPushButton("Масовий зсув рядків…"); self.btn_bulk_shift.setToolTip("Зсувати рядки через 1, 2 або більше рядків"); self.btn_bulk_shift.clicked.connect(self.open_bulk_shift_dialog); layout.addWidget(self.btn_bulk_shift)
-        self.btn_gen_grid = QPushButton("Генератор орнаменту"); self.btn_gen_grid.clicked.connect(self.open_grid_generator); layout.addWidget(self.btn_gen_grid)
+        self.sym_group = QGroupBox(self.tx("symmetry")); sym_layout = QVBoxLayout(self.sym_group)
+        self.chk_sym_h = QCheckBox(self.tx("horizontal")); self.chk_sym_h.stateChanged.connect(self.toggle_sym_h)
+        self.chk_sym_v = QCheckBox(self.tx("vertical")); self.chk_sym_v.stateChanged.connect(self.toggle_sym_v)
+        sym_layout.addWidget(self.chk_sym_h); sym_layout.addWidget(self.chk_sym_v); layout.addWidget(self.sym_group)
+        self.select_group = QGroupBox(self.tx("selected_fragment")); select_layout = QHBoxLayout(self.select_group)
+        self.transform_buttons = {}
+        for mode, icon_name in (("mirror_h", "mirror_h"), ("mirror_v", "mirror_v"), ("rotate", "rotate")):
+            btn = QPushButton(); btn.setProperty("iconOnly", True); btn.setFixedSize(48, 44); btn.setIconSize(QSize(29, 29)); btn.setIcon(make_icon(icon_name)); btn.setToolTip(self.tx(mode))
+            btn.clicked.connect(lambda checked, m=mode: self.canvas.transform_selection(m)); select_layout.addWidget(btn); self.transform_buttons[mode] = btn
+        layout.addWidget(self.select_group)
+        extra_actions = QHBoxLayout()
+        self.btn_bulk_shift = QPushButton(); self.btn_bulk_shift.setProperty("iconOnly", True); self.btn_bulk_shift.setFixedSize(72, 48); self.btn_bulk_shift.setIconSize(QSize(30, 30)); self.btn_bulk_shift.setIcon(make_icon("bulk")); self.btn_bulk_shift.setToolTip(self.tx("bulk_shift")); self.btn_bulk_shift.clicked.connect(self.open_bulk_shift_dialog)
+        self.btn_gen_grid = QPushButton(); self.btn_gen_grid.setProperty("iconOnly", True); self.btn_gen_grid.setFixedSize(72, 48); self.btn_gen_grid.setIconSize(QSize(30, 30)); self.btn_gen_grid.setIcon(make_icon("generator")); self.btn_gen_grid.setToolTip(self.tx("generator")); self.btn_gen_grid.clicked.connect(self.open_grid_generator)
+        extra_actions.addWidget(self.btn_bulk_shift); extra_actions.addWidget(self.btn_gen_grid); layout.addLayout(extra_actions)
         layout.addStretch()
         return panel
 
     def _build_right_tabs(self):
-        tabs = QTabWidget(); tabs.setObjectName("propertyTabs"); tabs.setFixedWidth(390)
-        tabs.tabBar().setUsesScrollButtons(False); tabs.tabBar().setExpanding(True)
-        tabs.addTab(self._build_drawing_tab(), "Малювання")
-        tabs.addTab(self._build_product_tab(), "Виріб")
-        tabs.addTab(self._build_colors_tab(), "Кольори")
-        tabs.addTab(self._build_layers_tab(), "Шари")
-        tabs.addTab(self._build_export_tab(), "Експорт")
-        return tabs
+        self.property_tabs = QTabWidget(); self.property_tabs.setObjectName("propertyTabs"); self.property_tabs.setFixedWidth(390)
+        self.property_tabs.tabBar().setUsesScrollButtons(False); self.property_tabs.tabBar().setExpanding(True)
+        self.property_tabs.addTab(self._build_drawing_tab(), self.tx("drawing"))
+        self.property_tabs.addTab(self._build_product_tab(), self.tx("product"))
+        self.property_tabs.addTab(self._build_colors_tab(), self.tx("colors"))
+        self.property_tabs.addTab(self._build_layers_tab(), self.tx("layers"))
+        self.property_tabs.addTab(self._build_export_tab(), self.tx("export"))
+        return self.property_tabs
 
     def _scroll_tab(self):
         scroll = QScrollArea(); scroll.setWidgetResizable(True); body = QWidget(); layout = QVBoxLayout(body); layout.setAlignment(Qt.AlignmentFlag.AlignTop); scroll.setWidget(body)
@@ -1232,8 +1405,8 @@ class MainWindow(QMainWindow):
     def _build_drawing_tab(self):
         scroll, layout = self._scroll_tab()
         self.lbl_current_color = QLabel("Поточний колір"); self.lbl_current_color.setAlignment(Qt.AlignmentFlag.AlignCenter); layout.addWidget(self.lbl_current_color)
-        color_button = QPushButton("Вибрати свій колір"); color_button.clicked.connect(self.choose_custom_color); layout.addWidget(color_button)
-        layout.addWidget(QLabel("Швидка палітра")); palette_grid = QGridLayout()
+        self.color_button = QPushButton(self.tx("pick_color")); self.color_button.clicked.connect(self.choose_custom_color); layout.addWidget(self.color_button)
+        self.quick_palette_label = QLabel(self.tx("quick_palette")); layout.addWidget(self.quick_palette_label); palette_grid = QGridLayout()
         defaults = ["#111827", "#FFFFFF", "#DC2626", "#16A34A", "#2563EB", "#FACC15", "#EA580C", "#7C3AED", "#6B7280", "#EC4899"]
         self.palette_colors = self.settings.value("palette", defaults)
         if not isinstance(self.palette_colors, list) or len(self.palette_colors) < 10: self.palette_colors = defaults.copy()
@@ -1243,17 +1416,17 @@ class MainWindow(QMainWindow):
             btn.clicked.connect(lambda checked, idx=i: self.set_drawing_color(QColor(self.palette_colors[idx])))
             btn.rightClicked.connect(lambda idx=i: self.edit_palette_color(idx)); self.palette_buttons.append(btn); palette_grid.addWidget(btn, i // 5, i % 5)
         layout.addLayout(palette_grid)
-        bg = QPushButton("Колір фону полотна"); bg.clicked.connect(self.choose_bg_color); layout.addWidget(bg)
-        ref = QGroupBox("Ескіз"); ref_layout = QVBoxLayout(ref)
-        load_ref = QPushButton("Завантажити зображення"); load_ref.clicked.connect(self.load_reference)
-        fit_ref = QPushButton("Вписати зображення у сітку"); fit_ref.clicked.connect(self.fit_reference_to_grid)
-        convert_ref = QPushButton("Перетворити зображення у схему"); convert_ref.setToolTip("Для кожної клітинки вибрати найближчий колір зі швидкої палітри"); convert_ref.clicked.connect(self.convert_reference_to_pattern)
+        self.bg_button = QPushButton(self.tx("canvas_bg")); self.bg_button.clicked.connect(self.choose_bg_color); layout.addWidget(self.bg_button)
+        self.ref_group = QGroupBox(self.tx("sketch")); ref_layout = QVBoxLayout(self.ref_group)
+        self.load_ref_button = QPushButton(self.tx("load_image")); self.load_ref_button.clicked.connect(self.load_reference)
+        self.fit_ref_button = QPushButton(self.tx("fit_image")); self.fit_ref_button.clicked.connect(self.fit_reference_to_grid)
+        self.convert_ref_button = QPushButton(self.tx("convert_image")); self.convert_ref_button.clicked.connect(self.convert_reference_to_pattern)
         self.chk_ref_lock = QCheckBox("Зафіксувати"); self.chk_ref_lock.stateChanged.connect(self.toggle_ref_lock)
         self.lbl_ref_info = QLabel("Ескіз не завантажено"); self.lbl_ref_info.setObjectName("mutedLabel")
         self.slider_op = QSlider(Qt.Orientation.Horizontal); self.slider_op.setRange(10, 100); self.slider_op.setValue(100); self.slider_op.valueChanged.connect(self.update_ref_opacity)
-        clear_ref = QPushButton("Видалити ескіз"); clear_ref.clicked.connect(self.clear_reference)
-        for widget in (load_ref, fit_ref, convert_ref, self.chk_ref_lock, self.lbl_ref_info, QLabel("Прозорість"), self.slider_op, clear_ref): ref_layout.addWidget(widget)
-        layout.addWidget(ref)
+        self.opacity_label = QLabel(self.tx("opacity")); self.clear_ref_button = QPushButton(self.tx("remove_sketch")); self.clear_ref_button.clicked.connect(self.clear_reference)
+        for widget in (self.load_ref_button, self.fit_ref_button, self.convert_ref_button, self.chk_ref_lock, self.lbl_ref_info, self.opacity_label, self.slider_op, self.clear_ref_button): ref_layout.addWidget(widget)
+        layout.addWidget(self.ref_group)
         return scroll
 
     def _build_product_tab(self):
@@ -1271,12 +1444,13 @@ class MainWindow(QMainWindow):
         self.product_shape_combo.currentIndexChanged.connect(lambda: self.canvas.set_product_shape(self.product_shape_combo.currentData()))
         self.spin_rows = QSpinBox(); self.spin_rows.setRange(3, 500); self.spin_rows.setValue(50)
         self.spin_cols = QSpinBox(); self.spin_cols.setRange(3, 500); self.spin_cols.setValue(70)
-        form.addRow("Назва", self.title_edit); form.addRow("Автор", self.author_edit); form.addRow("Тип", self.product_combo)
-        form.addRow("Сітка", self.grid_mode_combo); form.addRow("Форма", self.product_shape_combo); form.addRow("Рядків", self.spin_rows); form.addRow("Стовпців", self.spin_cols)
+        self.product_form_labels = {key: QLabel(self.tx(key)) for key in ("title", "author", "type", "grid", "form", "rows", "columns")}
+        form.addRow(self.product_form_labels["title"], self.title_edit); form.addRow(self.product_form_labels["author"], self.author_edit); form.addRow(self.product_form_labels["type"], self.product_combo)
+        form.addRow(self.product_form_labels["grid"], self.grid_mode_combo); form.addRow(self.product_form_labels["form"], self.product_shape_combo); form.addRow(self.product_form_labels["rows"], self.spin_rows); form.addRow(self.product_form_labels["columns"], self.spin_cols)
         layout.addLayout(form)
-        resize = QPushButton("Застосувати розмір"); resize.clicked.connect(lambda: self.canvas.resize_grid(self.spin_rows.value(), self.spin_cols.value())); layout.addWidget(resize)
+        self.resize_button = QPushButton(self.tx("resize")); self.resize_button.clicked.connect(lambda: self.canvas.resize_grid(self.spin_rows.value(), self.spin_cols.value())); layout.addWidget(self.resize_button)
         self.chk_hide_grid = QCheckBox("Приховати лінії сітки"); self.chk_hide_grid.stateChanged.connect(lambda state: self.canvas.set_grid_hidden(bool(state))); layout.addWidget(self.chk_hide_grid)
-        clear = QPushButton("Очистити полотно…"); clear.setObjectName("dangerButton"); clear.clicked.connect(self.confirm_clear_canvas); layout.addWidget(clear)
+        self.product_clear_button = QPushButton(self.tx("clear")); self.product_clear_button.setObjectName("dangerButton"); self.product_clear_button.clicked.connect(self.confirm_clear_canvas); layout.addWidget(self.product_clear_button)
         return scroll
 
     def _build_colors_tab(self):
@@ -1285,17 +1459,87 @@ class MainWindow(QMainWindow):
 
     def _build_layers_tab(self):
         scroll, layout = self._scroll_tab(); self.layers_list = QListWidget(); self.layers_list.currentRowChanged.connect(self.select_layer); layout.addWidget(self.layers_list)
-        buttons = QGridLayout()
-        for i, (label, slot) in enumerate((("＋ Додати", self.add_layer), ("⧉ Дублювати", self.duplicate_layer), ("✎ Назва", self.rename_layer), ("Видалити", self.delete_layer), ("Видимість", self.toggle_layer_visibility), ("Блокування", self.toggle_layer_lock))):
-            btn = QPushButton(label); btn.clicked.connect(slot); buttons.addWidget(btn, i // 2, i % 2)
+        buttons = QGridLayout(); self.layer_buttons = {}
+        specs = (("add_layer", self.add_layer, "new"), ("duplicate_layer", self.duplicate_layer, "duplicate"),
+                 ("rename_layer", self.rename_layer, "pencil"), ("delete_layer", self.delete_layer, "clear"),
+                 ("visibility", self.toggle_layer_visibility, "visibility"), ("locking", self.toggle_layer_lock, "lock"))
+        for i, (key, slot, icon_name) in enumerate(specs):
+            btn = QPushButton(); btn.setProperty("iconOnly", True); btn.setFixedHeight(48); btn.setIconSize(QSize(28, 28)); btn.setIcon(make_icon(icon_name)); btn.setToolTip(self.tx(key)); btn.clicked.connect(slot)
+            buttons.addWidget(btn, i // 3, i % 3); self.layer_buttons[key] = btn
         layout.addLayout(buttons); return scroll
 
     def _build_export_tab(self):
         scroll, layout = self._scroll_tab()
-        info = QLabel("Експорт містить назву, автора, дату, нумерацію сторінок і легенду кольорів."); info.setWordWrap(True); info.setObjectName("mutedLabel"); layout.addWidget(info)
-        for label, slot in (("PDF для друку", self.export_pdf), ("PNG / JPG", self.export_image), ("SVG", self.export_svg), ("Текстова схема", self.export_text_pattern), ("Попередній перегляд друку", self.print_project)):
-            btn = QPushButton(label); btn.clicked.connect(slot); layout.addWidget(btn)
+        self.export_info = QLabel(self.tx("export_info")); self.export_info.setWordWrap(True); self.export_info.setObjectName("mutedLabel"); layout.addWidget(self.export_info)
+        self.export_buttons = {}
+        for key, slot in (("pdf_print", self.export_pdf), ("image_export", self.export_image), ("svg_export", self.export_svg), ("text_export", self.export_text_pattern), ("print_preview", self.print_project)):
+            btn = QPushButton(self.tx(key)); btn.clicked.connect(slot); layout.addWidget(btn); self.export_buttons[key] = btn
         return scroll
+
+    def change_language(self):
+        language = self.language_combo.currentData()
+        if language not in UI_TEXT or language == self.language: return
+        self.language = language; self.settings.setValue("language", language); self.apply_language()
+
+    @staticmethod
+    def _translate_combo(combo, labels):
+        combo.blockSignals(True)
+        for index in range(combo.count()):
+            value = combo.itemData(index)
+            if value in labels: combo.setItemText(index, labels[value])
+        combo.blockSignals(False)
+
+    def apply_language(self):
+        shortcuts = {"new": "Ctrl+N", "open": "Ctrl+O", "recent": "Ctrl+Alt+O", "save": "Ctrl+S", "undo": "Ctrl+Z", "redo": "Ctrl+Y", "pdf": "Ctrl+Shift+S"}
+        for key, action in self.toolbar_actions.items():
+            action.setText(self.tx(key)); action.setToolTip(f"{self.tx(key)} ({shortcuts[key]})"); action.setStatusTip(self.tx(key))
+        self.clear_button.setToolTip(self.tx("clear")); self.zoom_label.setText(self.tx("zoom"))
+        self.theme_action.setText(self.tx("light") if self.dark_theme else self.tx("dark")); self.theme_action.setToolTip(self.theme_action.text())
+        self.full_action.setText(self.tx("fullscreen")); self.full_action.setToolTip(f"{self.tx('fullscreen')} (F11)")
+        self.language_combo.setToolTip(self.tx("language")); self.tools_title.setText(self.tx("drawing")); self.help_label.setText(self.tx("help"))
+        for key, button in self.tool_buttons.items(): button.setToolTip(self.tx(key))
+        self.brush_label.setText(self.tx("thickness")); self.group_shapes.setTitle(self.tx("shape")); self.chk_shape_filled.setText(self.tx("filled_shape"))
+        self.sym_group.setTitle(self.tx("symmetry")); self.chk_sym_h.setText(self.tx("horizontal")); self.chk_sym_v.setText(self.tx("vertical"))
+        self.select_group.setTitle(self.tx("selected_fragment"))
+        for key, button in self.transform_buttons.items(): button.setToolTip(self.tx(key))
+        self.btn_bulk_shift.setToolTip(self.tx("bulk_shift")); self.btn_gen_grid.setToolTip(self.tx("generator"))
+        for index, key in enumerate(("drawing", "product", "colors", "layers", "export")): self.property_tabs.setTabText(index, self.tx(key))
+        self.color_button.setText(self.tx("pick_color")); self.quick_palette_label.setText(self.tx("quick_palette")); self.bg_button.setText(self.tx("canvas_bg"))
+        self.ref_group.setTitle(self.tx("sketch")); self.load_ref_button.setText(self.tx("load_image")); self.fit_ref_button.setText(self.tx("fit_image")); self.convert_ref_button.setText(self.tx("convert_image"))
+        self.chk_ref_lock.setText(self.tx("lock")); self.opacity_label.setText(self.tx("opacity")); self.clear_ref_button.setText(self.tx("remove_sketch"))
+        if not self.canvas.ref_image_item: self.lbl_ref_info.setText(self.tx("no_sketch"))
+        for key, label in self.product_form_labels.items(): label.setText(self.tx(key))
+        self.resize_button.setText(self.tx("resize")); self.chk_hide_grid.setText(self.tx("hide_grid")); self.product_clear_button.setText(self.tx("clear"))
+        for key, button in self.layer_buttons.items(): button.setToolTip(self.tx(key))
+        self.export_info.setText(self.tx("export_info"))
+        for key, button in self.export_buttons.items(): button.setText(self.tx(key))
+        shape_labels = {
+            "uk": {"rect": "Прямокутник", "rounded": "Заокруглений прямокутник", "ellipse": "Коло / овал", "triangle": "Трикутник", "diamond": "Ромб", "hexagon": "Шестикутник", "star": "Зірка", "cross": "Хрест"},
+            "en": {"rect": "Rectangle", "rounded": "Rounded rectangle", "ellipse": "Circle / ellipse", "triangle": "Triangle", "diamond": "Diamond", "hexagon": "Hexagon", "star": "Star", "cross": "Cross"},
+        }
+        product_labels = {
+            "uk": {value: label for label, value in NewProjectDialog.PRODUCT_TYPES},
+            "en": {"loom": "Silianka / gerdan", "bracelet": "Loom bracelet", "peyote": "Peyote stitch", "brick": "Brick stitch", "rope": "Beaded rope", "earrings": "Earrings", "pendant": "Pendant", "fringe": "Fringe"},
+        }
+        grid_labels = {
+            "uk": {value: label for label, value in NewProjectDialog.GRID_TYPES},
+            "en": {"regular": "Regular", "peyote_even": "Even-count peyote", "peyote_odd": "Odd-count peyote", "brick": "Brick stitch", "custom": "Custom / bulk shift"},
+        }
+        project_shape_labels = {
+            "uk": {value: label for label, value in NewProjectDialog.SHAPES},
+            "en": {"rectangle": "Rectangle", "triangle": "Triangle", "diamond": "Diamond", "circle": "Circle / ellipse", "earrings_pair": "Earring pair", "pendant": "Pendant"},
+        }
+        self._translate_combo(self.combo_shape, shape_labels[self.language]); self._translate_combo(self.product_combo, product_labels[self.language])
+        self._translate_combo(self.grid_mode_combo, grid_labels[self.language]); self._translate_combo(self.product_shape_combo, project_shape_labels[self.language])
+        layer_names = {
+            "uk": ["Фон", "Орнамент", "Контур", "Підказка / ескіз"],
+            "en": ["Background", "Pattern", "Outline", "Guide / reference"],
+        }
+        known_layer_names = layer_names["en" if self.language == "uk" else "uk"]
+        for layer in self.canvas.layers:
+            if layer["name"] in known_layer_names:
+                layer["name"] = layer_names[self.language][known_layer_names.index(layer["name"])]
+        self.refresh_layers_ui(); self.update_calculator(); self.update_window_title()
 
     def apply_theme(self):
         if self.dark_theme:
@@ -1307,7 +1551,10 @@ class MainWindow(QMainWindow):
             QFrame#sidePanel, QScrollArea, QScrollArea > QWidget > QWidget, QTabWidget::pane {{ background: {colors['panel']}; border: 1px solid {colors['border']}; border-radius: 14px; }}
             QToolBar {{ background: {colors['panel']}; border: none; border-bottom: 1px solid {colors['border']}; spacing: 5px; padding: 7px; }}
             QToolButton, QPushButton {{ background: {colors['card']}; border: 1px solid {colors['border']}; border-radius: 9px; padding: 7px 10px; }}
+            QToolButton {{ min-width: 34px; min-height: 34px; padding: 4px; }}
+            QPushButton[iconOnly="true"] {{ padding: 3px; background: {colors['card']}; border: 1px solid {colors['border']}; border-radius: 11px; }}
             QToolButton:hover, QPushButton:hover {{ border-color: #6366f1; background: #eef2ff; color: #312e81; }}
+            QPushButton[iconOnly="true"]:hover {{ background: #e0e7ff; border: 2px solid #6366f1; }}
             QPushButton:checked {{ background: #5b5ce2; color: white; border-color: #4f46e5; }}
             QPushButton#dangerButton {{ color: #b42318; }}
             QLabel#panelTitle {{ font-size: 16pt; font-weight: 700; color: #5b5ce2; padding: 4px; }}
@@ -1322,7 +1569,7 @@ class MainWindow(QMainWindow):
         self.set_drawing_color(self.canvas.current_draw_color)
 
     def toggle_theme(self, checked):
-        self.dark_theme = checked; self.settings.setValue("dark_theme", checked); self.theme_action.setText("Світла тема" if checked else "Темна тема"); self.apply_theme()
+        self.dark_theme = checked; self.settings.setValue("dark_theme", checked); self.apply_theme(); self.apply_language()
 
     def toggle_fullscreen(self):
         self.showNormal() if self.isFullScreen() else self.showFullScreen()
@@ -1337,19 +1584,22 @@ class MainWindow(QMainWindow):
         self.product_type = self.product_combo.currentData()
 
     def confirm_clear_canvas(self):
+        en = self.language == "en"
         if not any(layer["colors"] for layer in self.canvas.layers) and not self.canvas.ref_image_item:
-            QMessageBox.information(self, "Очистити полотно", "Полотно вже порожнє."); return
+            QMessageBox.information(self, "Clear canvas" if en else "Очистити полотно", "The canvas is already empty." if en else "Полотно вже порожнє."); return
         answer = QMessageBox.question(
-            self, "Очистити все полотно?",
-            "Буде видалено всі намальовані намистини з усіх шарів, включно із заблокованими, а також завантажене зображення-ескіз.\n\n"
-            "Розміри сітки залишаться. Намистини можна повернути через Ctrl+Z, але зображення доведеться завантажити знову.",
+            self, "Clear the entire canvas?" if en else "Очистити все полотно?",
+            ("All painted beads on every layer, including locked layers, and the loaded reference image will be removed.\n\n"
+             "The grid size will remain. Beads can be restored with Ctrl+Z, but the image must be loaded again.") if en else
+            ("Буде видалено всі намальовані намистини з усіх шарів, включно із заблокованими, а також завантажене зображення-ескіз.\n\n"
+             "Розміри сітки залишаться. Намистини можна повернути через Ctrl+Z, але зображення доведеться завантажити знову."),
             QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
             QMessageBox.StandardButton.No)
         if answer != QMessageBox.StandardButton.Yes: return
         self.canvas._push_undo()
         for layer in self.canvas.layers: layer["colors"].clear()
         if self.canvas.ref_image_item: self.clear_reference()
-        self.canvas.refresh_all_cells(); self.statusBar().showMessage("Полотно очищено", 4000)
+        self.canvas.refresh_all_cells(); self.statusBar().showMessage("Canvas cleared" if en else "Полотно очищено", 4000)
 
     def add_text_to_grid(self, row, col):
         if self.canvas.active_layer()["locked"]:
@@ -1376,16 +1626,16 @@ class MainWindow(QMainWindow):
 
     def update_window_title(self):
         suffix = f" — {os.path.basename(self.current_file)}" if self.current_file else ""
-        self.setWindowTitle(f"Редактор Силянок — {self.project_title}{suffix}")
+        self.setWindowTitle(f"{self.tx('app')} — {self.project_title}{suffix}")
 
     def refresh_layers_ui(self):
         if not hasattr(self, "layers_list"): return
         self.layers_list.blockSignals(True); self.layers_list.clear()
         for layer in reversed(self.canvas.layers):
-            visibility = "Видимий" if layer["visible"] else "Прихований"
-            lock = " · заблокований" if layer["locked"] else ""
+            visibility = self.tx("visible") if layer["visible"] else self.tx("hidden")
+            lock = f" · {self.tx('locked')}" if layer["locked"] else ""
             item = QListWidgetItem(f"{visibility} — {layer['name']}{lock}")
-            item.setToolTip("Виберіть шар, а потім скористайтеся підписаними кнопками нижче")
+            item.setToolTip("Select a layer, then use the icon buttons below" if self.language == "en" else "Виберіть шар, а потім скористайтеся кнопками нижче")
             self.layers_list.addItem(item)
         self.layers_list.setCurrentRow(len(self.canvas.layers) - 1 - self.canvas.active_layer_index)
         self.layers_list.blockSignals(False)
@@ -1550,8 +1800,8 @@ class MainWindow(QMainWindow):
             if child.widget(): child.widget().deleteLater()
             elif child.layout(): self._clear_layout(child.layout())
         
-        self.stats_layout.addWidget(QLabel("<b>Калькулятор бісеру:</b>"))
-        if not stats: self.stats_layout.addWidget(QLabel("Поки пусто")); self.calc_colors = []; return
+        self.stats_layout.addWidget(QLabel(f"<b>{self.tx('bead_calc')}:</b>"))
+        if not stats: self.stats_layout.addWidget(QLabel(self.tx("empty"))); self.calc_colors = []; return
 
         self.calc_colors = []
         for i, (color_hex, count) in enumerate(stats.items()):
@@ -1565,7 +1815,11 @@ class MainWindow(QMainWindow):
             code = material.get("code", color_hex) if isinstance(material, dict) else color_hex
             stock = int(material.get("stock", 0) or 0) if isinstance(material, dict) else 0
             shortage = stock < math.ceil(count * 1.1)
-            lbl_info = QLabel(f"<b>{idx}. {code}</b><br>{count} шт. · із запасом {math.ceil(count * 1.1)}" + ("<br><span style='color:#dc2626'>Немає в запасі</span>" if shortage else ""))
+            if self.language == "en":
+                info_text = f"<b>{idx}. {code}</b><br>{count} pcs · with reserve {math.ceil(count * 1.1)}" + ("<br><span style='color:#dc2626'>Insufficient stock</span>" if shortage else "")
+            else:
+                info_text = f"<b>{idx}. {code}</b><br>{count} шт. · із запасом {math.ceil(count * 1.1)}" + ("<br><span style='color:#dc2626'>Немає в запасі</span>" if shortage else "")
+            lbl_info = QLabel(info_text)
             
             btn_meta = QPushButton("⋯"); btn_meta.setFixedSize(30, 30); btn_meta.setToolTip("Код, назва, ціна, запас і нотатка"); btn_meta.clicked.connect(lambda ch, c=color_hex: self.edit_material(c))
             btn_rep = QPushButton("↻"); btn_rep.setFixedSize(30, 30); btn_rep.setToolTip("Замінити колір"); btn_rep.clicked.connect(lambda ch, c=color_hex: self.replace_color_on_canvas(c))
