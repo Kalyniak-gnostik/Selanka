@@ -114,6 +114,7 @@ class NewProjectDialog(QDialog):
         ("Пейот — парний", "peyote_even"),
         ("Пейот — непарний", "peyote_odd"),
         ("Brick stitch", "brick"),
+        ("Власний / масовий зсув", "custom"),
     ]
     SHAPES = [
         ("Прямокутник", "rectangle"),
@@ -212,6 +213,127 @@ class TextPatternDialog(QDialog):
     def values(self):
         return {"text": self.text_edit.text(), "family": self.font_combo.currentText(),
                 "height": self.height_spin.value(), "bold": self.bold_check.isChecked()}
+
+class BulkShiftDialog(QDialog):
+    def __init__(self, max_rows, parent=None):
+        super().__init__(parent); self.setWindowTitle("Масовий зсув рядків"); self.setMinimumWidth(430)
+        layout = QVBoxLayout(self); form = QFormLayout()
+        self.first_row = QSpinBox(); self.first_row.setRange(1, max_rows); self.first_row.setValue(2)
+        self.skip_rows = QSpinBox(); self.skip_rows.setRange(0, max(0, max_rows - 1)); self.skip_rows.setValue(1)
+        self.reset_existing = QCheckBox("Спочатку прибрати попередні зсуви"); self.reset_existing.setChecked(True)
+        form.addRow("Перший зсунутий рядок:", self.first_row)
+        form.addRow("Пропускати рядків між зсунутими:", self.skip_rows)
+        form.addRow("", self.reset_existing); layout.addLayout(form)
+        self.example = QLabel(); self.example.setWordWrap(True); self.example.setObjectName("mutedLabel"); layout.addWidget(self.example)
+        self.first_row.valueChanged.connect(self.update_example); self.skip_rows.valueChanged.connect(self.update_example); self.update_example()
+        buttons = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)
+        buttons.accepted.connect(self.accept); buttons.rejected.connect(self.reject); layout.addWidget(buttons)
+
+    def update_example(self):
+        first, step = self.first_row.value(), self.skip_rows.value() + 1
+        rows = [str(first + index * step) for index in range(5)]
+        self.example.setText("Будуть зсунуті рядки: " + ", ".join(rows) + "…  "
+                             + ("Через 1 = кожен другий рядок." if self.skip_rows.value() == 1 else ""))
+
+    def values(self):
+        return self.first_row.value() - 1, self.skip_rows.value(), self.reset_existing.isChecked()
+
+class ImageConversionDialog(QDialog):
+    """Налаштування квантування фото з живим попереднім переглядом."""
+    def __init__(self, samples, rows, cols, quick_palette, parent=None):
+        super().__init__(parent)
+        self.samples = samples; self.rows = rows; self.cols = cols
+        self.quick_palette = list(dict.fromkeys(QColor(value).name() for value in quick_palette if QColor(value).isValid()))
+        self.palette_cache = {}; self.result = {}; self.result_palette = []
+        self.setWindowTitle("Перетворення зображення у схему")
+        self.resize(900, 680)
+        root = QVBoxLayout(self)
+        settings = QGroupBox("Налаштування кольорів"); form = QFormLayout(settings)
+        self.mode_combo = QComboBox()
+        self.mode_combo.addItem("Автокольори з фото (наближені)", "auto")
+        self.mode_combo.addItem("Найближчі зі швидкої палітри", "palette")
+        count_row = QHBoxLayout()
+        less = QPushButton("− Менше"); more = QPushButton("Більше +")
+        self.count_spin = QSpinBox(); self.count_spin.setRange(2, 32); self.count_spin.setValue(min(10, max(2, len(self.quick_palette))))
+        self.count_slider = QSlider(Qt.Orientation.Horizontal); self.count_slider.setRange(2, 32); self.count_slider.setValue(self.count_spin.value())
+        less.clicked.connect(lambda: self.count_spin.setValue(self.count_spin.value() - 1))
+        more.clicked.connect(lambda: self.count_spin.setValue(self.count_spin.value() + 1))
+        self.count_spin.valueChanged.connect(self.count_slider.setValue); self.count_slider.valueChanged.connect(self.count_spin.setValue)
+        count_row.addWidget(less); count_row.addWidget(self.count_spin); count_row.addWidget(more); count_row.addWidget(self.count_slider, 1)
+        form.addRow("Режим:", self.mode_combo); form.addRow("Кількість кольорів:", count_row); root.addWidget(settings)
+        self.preview_label = QLabel(); self.preview_label.setAlignment(Qt.AlignmentFlag.AlignCenter); self.preview_label.setMinimumSize(700, 390)
+        preview_scroll = QScrollArea(); preview_scroll.setWidgetResizable(True); preview_scroll.setWidget(self.preview_label); root.addWidget(preview_scroll, 1)
+        self.info_label = QLabel(); self.info_label.setWordWrap(True); root.addWidget(self.info_label)
+        buttons = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)
+        buttons.button(QDialogButtonBox.StandardButton.Ok).setText("Створити схему")
+        buttons.accepted.connect(self.accept); buttons.rejected.connect(self.reject); root.addWidget(buttons)
+        self.mode_combo.currentIndexChanged.connect(self.mode_changed); self.count_spin.valueChanged.connect(self.update_preview)
+        self.mode_changed()
+
+    def mode_changed(self):
+        maximum = max(2, len(self.quick_palette)) if self.mode_combo.currentData() == "palette" else 32
+        self.count_spin.setMaximum(maximum); self.count_slider.setMaximum(maximum)
+        if self.count_spin.value() > maximum: self.count_spin.setValue(maximum)
+        self.update_preview()
+
+    @staticmethod
+    def distance(color, center):
+        return .30 * (color[0] - center[0]) ** 2 + .59 * (color[1] - center[1]) ** 2 + .11 * (color[2] - center[2]) ** 2
+
+    def automatic_palette(self, count):
+        histogram = {}
+        for _, _, red, green, blue in self.samples:
+            key = (red, green, blue); histogram[key] = histogram.get(key, 0) + 1
+        points = sorted(histogram.items(), key=lambda item: item[1], reverse=True)[:4096]
+        if not points: return []
+        centers = [points[0][0]]
+        while len(centers) < min(count, len(points)):
+            candidate = max(points, key=lambda item: min(self.distance(item[0], center) for center in centers) * math.log2(item[1] + 1))[0]
+            if candidate in centers: break
+            centers.append(candidate)
+        for _ in range(7):
+            totals = [[0.0, 0.0, 0.0, 0] for _ in centers]
+            for color, weight in points:
+                index = min(range(len(centers)), key=lambda idx: self.distance(color, centers[idx]))
+                totals[index][0] += color[0] * weight; totals[index][1] += color[1] * weight
+                totals[index][2] += color[2] * weight; totals[index][3] += weight
+            updated = [tuple(round(total[channel] / total[3]) for channel in range(3)) if total[3] else centers[index]
+                       for index, total in enumerate(totals)]
+            if updated == centers: break
+            centers = updated
+        return [QColor(*center).name() for center in centers]
+
+    def nearest_quick_palette(self, count):
+        candidates = [(QColor(value).red(), QColor(value).green(), QColor(value).blue(), value) for value in self.quick_palette]
+        usage = {value: 0 for value in self.quick_palette}
+        for _, _, red, green, blue in self.samples:
+            nearest = min(candidates, key=lambda color: self.distance((red, green, blue), color))[3]; usage[nearest] += 1
+        return sorted(self.quick_palette, key=lambda value: usage[value], reverse=True)[:count]
+
+    def update_preview(self):
+        if not self.samples: return
+        mode, count = self.mode_combo.currentData(), self.count_spin.value(); cache_key = (mode, count)
+        if cache_key not in self.palette_cache:
+            self.palette_cache[cache_key] = self.automatic_palette(count) if mode == "auto" else self.nearest_quick_palette(count)
+        palette = self.palette_cache[cache_key]
+        centers = [(QColor(value).red(), QColor(value).green(), QColor(value).blue(), value) for value in palette]
+        self.result = {}
+        for row, col, red, green, blue in self.samples:
+            nearest = min(centers, key=lambda color: self.distance((red, green, blue), color))
+            self.result[(row, col)] = nearest[3]
+        self.result_palette = palette
+        cell = max(1, min(10, 720 // max(1, self.cols), 440 // max(1, self.rows)))
+        image = QImage(max(1, self.cols * cell), max(1, self.rows * cell), QImage.Format.Format_RGB32); image.fill(QColor("#f8fafc"))
+        painter = QPainter(image); painter.setPen(Qt.PenStyle.NoPen)
+        for (row, col), color in self.result.items(): painter.fillRect(col * cell, row * cell, cell, cell, QColor(color))
+        if cell >= 5:
+            painter.setPen(QPen(QColor(80, 80, 80, 90), 1))
+            for row in range(self.rows + 1): painter.drawLine(0, row * cell, self.cols * cell, row * cell)
+            for col in range(self.cols + 1): painter.drawLine(col * cell, 0, col * cell, self.rows * cell)
+        painter.end()
+        pixmap = QPixmap.fromImage(image).scaled(760, 460, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.FastTransformation)
+        self.preview_label.setPixmap(pixmap)
+        self.info_label.setText(f"Попередній результат: {len(self.result)} клітинок · {len(palette)} кольорів\nПалітра: " + "  ".join(value.upper() for value in palette))
 
 class GridGeneratorDialog(QDialog):
     def __init__(self, current_color, parent=None):
@@ -529,6 +651,9 @@ class GridCanvas(QGraphicsView):
 
     def set_grid_mode(self, mode):
         self.grid_mode = mode
+        if mode == "custom":
+            for row in range(self.rows): self.update_row_positions(row)
+            return
         for row in range(self.rows):
             self.row_shifts[row] = mode in ("peyote_even", "peyote_odd", "brick") and row % 2 == 1
             self.update_row_positions(row)
@@ -1039,7 +1164,7 @@ class MainWindow(QMainWindow):
         ]
         for text, slot, shortcut in actions:
             action = QAction(text, self); action.setShortcut(QKeySequence(shortcut)); action.triggered.connect(slot); toolbar.addAction(action)
-        clear_button = QPushButton("Очистити полотно"); clear_button.setObjectName("dangerButton"); clear_button.setToolTip("Видалити всі намальовані клітинки з усіх шарів")
+        clear_button = QPushButton("Очистити полотно"); clear_button.setObjectName("dangerButton"); clear_button.setToolTip("Видалити всі намальовані клітинки та завантажений ескіз")
         clear_button.clicked.connect(self.confirm_clear_canvas); toolbar.addWidget(clear_button)
         toolbar.addSeparator(); toolbar.addWidget(QLabel("Масштаб"))
         self.zoom_slider = QSlider(Qt.Orientation.Horizontal); self.zoom_slider.setRange(25, 300); self.zoom_slider.setValue(100); self.zoom_slider.setFixedWidth(130)
@@ -1085,6 +1210,7 @@ class MainWindow(QMainWindow):
         for i, (label, mode) in enumerate((("Дзеркало ліво/право", "mirror_h"), ("Дзеркало верх/низ", "mirror_v"), ("Повернути 90°", "rotate"))):
             btn = QPushButton(label); btn.clicked.connect(lambda checked, m=mode: self.canvas.transform_selection(m)); select_layout.addWidget(btn, i, 0)
         layout.addWidget(select_group)
+        self.btn_bulk_shift = QPushButton("Масовий зсув рядків…"); self.btn_bulk_shift.setToolTip("Зсувати рядки через 1, 2 або більше рядків"); self.btn_bulk_shift.clicked.connect(self.open_bulk_shift_dialog); layout.addWidget(self.btn_bulk_shift)
         self.btn_gen_grid = QPushButton("Генератор орнаменту"); self.btn_gen_grid.clicked.connect(self.open_grid_generator); layout.addWidget(self.btn_gen_grid)
         layout.addStretch()
         return panel
@@ -1211,17 +1337,18 @@ class MainWindow(QMainWindow):
         self.product_type = self.product_combo.currentData()
 
     def confirm_clear_canvas(self):
-        if not any(layer["colors"] for layer in self.canvas.layers):
+        if not any(layer["colors"] for layer in self.canvas.layers) and not self.canvas.ref_image_item:
             QMessageBox.information(self, "Очистити полотно", "Полотно вже порожнє."); return
         answer = QMessageBox.question(
             self, "Очистити все полотно?",
-            "Буде видалено всі намальовані намистини з усіх шарів, включно із заблокованими.\n\n"
-            "Фонове зображення та розміри сітки залишаться. Цю дію можна скасувати через Ctrl+Z.",
+            "Буде видалено всі намальовані намистини з усіх шарів, включно із заблокованими, а також завантажене зображення-ескіз.\n\n"
+            "Розміри сітки залишаться. Намистини можна повернути через Ctrl+Z, але зображення доведеться завантажити знову.",
             QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
             QMessageBox.StandardButton.No)
         if answer != QMessageBox.StandardButton.Yes: return
         self.canvas._push_undo()
         for layer in self.canvas.layers: layer["colors"].clear()
+        if self.canvas.ref_image_item: self.clear_reference()
         self.canvas.refresh_all_cells(); self.statusBar().showMessage("Полотно очищено", 4000)
 
     def add_text_to_grid(self, row, col):
@@ -1304,6 +1431,25 @@ class MainWindow(QMainWindow):
 
     def quick_select_calc_color(self, idx):
         if idx - 1 < len(self.calc_colors): self.set_drawing_color(QColor(self.calc_colors[idx - 1]))
+
+    def open_bulk_shift_dialog(self):
+        dialog = BulkShiftDialog(self.canvas.rows, self)
+        if dialog.exec() != QDialog.DialogCode.Accepted: return
+        self.apply_bulk_shift(*dialog.values())
+
+    def apply_bulk_shift(self, first_row, skip_rows, reset_existing=True):
+        self.canvas._push_undo()
+        if reset_existing:
+            self.canvas.row_shifts = {row: False for row in range(self.canvas.rows)}
+        step = skip_rows + 1
+        for row in range(first_row, self.canvas.rows, step): self.canvas.row_shifts[row] = True
+        self.canvas.grid_mode = "custom"
+        index = self.grid_mode_combo.findData("custom")
+        if index >= 0:
+            self.grid_mode_combo.blockSignals(True); self.grid_mode_combo.setCurrentIndex(index); self.grid_mode_combo.blockSignals(False)
+        for row in range(self.canvas.rows): self.canvas.update_row_positions(row)
+        shifted = sum(1 for value in self.canvas.row_shifts.values() if value)
+        self.canvas.scene.update(); self.statusBar().showMessage(f"Масовий зсув застосовано: {shifted} рядків", 5000)
 
     def open_grid_generator(self):
         dlg = GridGeneratorDialog(self.canvas.current_draw_color.name(), self)
@@ -1482,18 +1628,9 @@ class MainWindow(QMainWindow):
         layer = self.canvas.active_layer()
         if layer["locked"]:
             QMessageBox.warning(self, "Зображення у схему", "Поточний шар заблокований. Виберіть або створіть незаблокований шар."); return
-        palette = [QColor(value) for value in dict.fromkeys(self.palette_colors) if QColor(value).isValid()]
-        if not palette:
+        if not any(QColor(value).isValid() for value in self.palette_colors):
             QMessageBox.warning(self, "Зображення у схему", "Швидка палітра не містить придатних кольорів."); return
-        answer = QMessageBox.question(
-            self, "Перетворити зображення у схему?",
-            f"Кожна клітинка в межах зображення отримає найближчий із {len(palette)} кольорів швидкої палітри.\n"
-            f"Результат буде записано на шар «{layer['name']}». Поточні клітинки цього шару в зоні зображення буде замінено.",
-            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No, QMessageBox.StandardButton.Yes)
-        if answer != QMessageBox.StandardButton.Yes: return
-        self.canvas._push_undo(); image = item.pixmap().toImage()
-        palette_rgb = [(color.red(), color.green(), color.blue(), color.name()) for color in palette]
-        bounds = item.boundingRect(); converted = 0
+        image = item.pixmap().toImage(); bounds = item.boundingRect(); samples = []
         QApplication.setOverrideCursor(Qt.CursorShape.WaitCursor)
         try:
             for (row, col), cell in self.canvas.cells.items():
@@ -1504,13 +1641,18 @@ class MainWindow(QMainWindow):
                 py = min(image.height() - 1, max(0, int(local.y() / max(1, bounds.height()) * image.height())))
                 source = image.pixelColor(px, py)
                 if source.alpha() < 20: continue
-                sr, sg, sb = source.red(), source.green(), source.blue()
-                nearest = min(palette_rgb, key=lambda p: 0.30 * (sr - p[0]) ** 2 + 0.59 * (sg - p[1]) ** 2 + 0.11 * (sb - p[2]) ** 2)
-                self.canvas.set_cell_color(row, col, QColor(nearest[3])); converted += 1
+                samples.append((row, col, source.red(), source.green(), source.blue()))
         finally:
             QApplication.restoreOverrideCursor()
+        if not samples:
+            QMessageBox.warning(self, "Зображення у схему", "Зображення не перетинається із клітинками сітки."); return
+        dialog = ImageConversionDialog(samples, self.canvas.rows, self.canvas.cols, self.palette_colors, self)
+        if dialog.exec() != QDialog.DialogCode.Accepted: return
+        self.canvas._push_undo()
+        for position, color in dialog.result.items(): self.canvas.set_cell_color(position[0], position[1], QColor(color))
         self.chk_ref_lock.setChecked(True); self.slider_op.setValue(25)
-        self.canvas.refresh_all_cells(); self.statusBar().showMessage(f"Зображення перетворено: {converted} клітинок", 6000)
+        self.canvas.refresh_all_cells()
+        self.statusBar().showMessage(f"Зображення перетворено: {len(dialog.result)} клітинок, {len(dialog.result_palette)} кольорів", 6000)
 
     def update_ref_opacity(self):
         if self.canvas.ref_image_item: self.canvas.ref_image_item.setOpacity(self.slider_op.value() / 100.0)
@@ -1521,7 +1663,10 @@ class MainWindow(QMainWindow):
             else: 
                 for btn in self.tool_buttons.values(): btn.setChecked(False)
     def clear_reference(self):
-        if self.canvas.ref_image_item: self.canvas.scene.removeItem(self.canvas.ref_image_item); self.canvas.ref_image_item = None; self.lbl_ref_info.setText("Видалено"); self.change_tool("pencil")
+        if self.canvas.ref_image_item:
+            self.canvas.scene.removeItem(self.canvas.ref_image_item); self.canvas.ref_image_item = None
+            self.chk_ref_lock.blockSignals(True); self.chk_ref_lock.setChecked(False); self.chk_ref_lock.blockSignals(False)
+            self.slider_op.setValue(100); self.lbl_ref_info.setText("Ескіз не завантажено"); self.change_tool("pencil")
 
     def print_project(self):
         dlg = PrintSettingsDialog(self)
